@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vanessa's Weather App</title>
+    <link rel="stylesheet" href="styling.css">
+      </head>
+  <body>
+  <div class="container"><!--start app container-->
+    <div class="search-form"><!--start search form container-->
+        <form id="search-field">
+            <input
+            type="search"
+            placeholder="Enter a city.."
+            required
+            class="search-input">
+           </br>
+          <p id="searching-city"><!--will display "Searching weather for <city>" when search button is clicked--></p></br>
+            <input type="submit" value="Search" class="search-button" />
+        </form>
+        </div><!--end search form container-->
+        <div class = "city">
+            <h1 id="city-result"> CITY<!--city name will display here upon search button click and event completion!--></h1>
+        </div>
+        <div class="current-date">
+            <h4><span id="weekday">Weekday</span>, <span id="month">MM</span>/<span id="day">DD</span>/<span id="year">YYYY</span>
+            </br>
+                <span id="hour">HH</span>:<span id="min">MM</span>
+    </h4>
+        </div>
+        <div class = "temp">
+            <h1 id="temperature"> Temp<!--temperature will display here upon search button click and event completion!--></h1>
+        </div>
+        <div class = "weather">
+            <!--weather descriptors will display here upon search button click and event completion!-->
+        <h4>Windspeed: <span id="windspeed"> ###</span> MPH </h4>
+        <h4>Humidity: <span id="windspeed"> ###</span> %</h4>
+       <h4>Description: <span id="description"> xxx </span></h4>
+        </div>
+        <div id="icon">icon place holder🌤</div>
+  </div><!--end app container-->  
+<script src="javascript.js"></script>  
+</body>
+  <footer>
+<p>This project was coded by Vanessa Villegas and is on GitHub and hosted on Netlify</p>
+  </footer>
+</html>
