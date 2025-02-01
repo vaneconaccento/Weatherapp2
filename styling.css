@@ -1,24 +1,32 @@
-html,
+/* general style for all content*/
+html {
+  flex-direction: column;
+  justify-content: space-between;
+  display: flex;
+}
+/* general style for body*/
 body {
   height: 100%;
   margin: 25px auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.container {
-  width: 600px;
-  background-color: aqua;
-  border: 1px solid #000000;
-  border-radius: 48px;
   padding: 25px;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
+.app-container {
+  background-size: cover;
+  height: 100%;
+  margin: 0;
+  border: 1px solid #000000;
+  border-radius: 48px;
+  width: 800px;
+  padding: 25px;
+}
+.city {
+  font-size: 20px;
+  align-content: right;
+}
 footer {
   text-align: center;
-  padding: 10px;
-  background-color: #333;
-  color: white;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: rgb(10, 0, 0);
 }

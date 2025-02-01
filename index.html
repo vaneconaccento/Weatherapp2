@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vanessa's Weather App</title>
     <link rel="stylesheet" href="styling.css">
-      </head>
+  <!--Axios-->   
+   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  </head>
   <body>
-  <div class="container"><!--start app container-->
-    <div class="search-form"><!--start search form container-->
+        <div class="app-container"><!--start app container-->
+        <div class="search-form"><!--start search form container-->
         <form id="search-field">
             <input
             type="search"
@@ -39,13 +41,16 @@
        <h4>Description: <span id="description"> xxx </span></h4>
         </div>
         <div id="icon">icon place holder🌤</div>
-  </div><!--end app container-->  
-<script src="javascript.js"></script>  
-</body>
-  <footer>
+      </br>
+ <div class="footer">
+<footer>
 This project was coded by:
   <a href="https://www.instagram.com/vaneconaccento/" target="_blank">Vanessa Villegas</a> and is on
   <a href="https://github.com/vaneconaccento/Weatherapp2.git" target="_blank">GitHub </a> and hosted on 
   <a href="https://anotherweatherproject.netlify.app/" target="_blank">Netlify</a>
   </footer>
-</html>
+  </div><!--end footer container-->
+    </div><!--end app container-->
+   <script src="javascript.js"></script>  
+</body>
+  </html>
