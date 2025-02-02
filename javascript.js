@@ -14,70 +14,120 @@
 
 //api city update, weather, and search bar text when searching
 
-let apiKey = "d7f1fbcd3e24octa40af721d34315a43";
-
+let apiKey = "xXKqIdDpT0sRO3yOXcGtg5tFS8C7NQZ7";
+let opencageKey = "0a28c32f1a4b40bbb4d8399ee9f42111";
 function searchClick(event) {
   event.preventDefault();
 
   let cityInput = document.querySelector(".search-input").value;
   cityInput = toProperCase(cityInput);
 
-  let apiUrl = `https://api.shecodes.io/weather/v1/current?query=${cityInput}&key=${apiKey}`;
+  // Get coordinates for the city (use cityInput here)
+  function getCoordinates(cityInput) {
+    const geocodeUrl = `https://api.opencagedata.com/geocode/v1/json?q=${cityInput}&key=${opencageKey}`;
 
-  updateSearchPlaceholder(cityInput);
-  updateCity(cityInput);
+    return axios
+      .get(geocodeUrl)
+      .then((response) => {
+        const data = response.data.results[0];
+        const lat = data.geometry.lat;
+        const lng = data.geometry.lng;
+        return { lat, lng };
+      })
+      .catch((error) => {
+        console.error("Error getting coordinates:", error);
+        return null;
+      });
+  }
 
-  let citySearch = document.querySelector("#searching-city");
-  citySearch.style.display = "block"; // toggles search message on
+  // Get coordinates and fetch weather data
+  getCoordinates(cityInput).then((coordinates) => {
+    if (coordinates) {
+      const { lat, lng } = coordinates;
+      const apiUrl = `https://api.tomorrow.io/v4/weather/realtime?location=${lat},${lng}&apikey=${apiKey}&fields=temperature,weatherCode,humidity,precipitation,weatherIcon,windspeed`;
 
-  axios
-    .get(apiUrl)
-    .then((response) => {
-      weatherUpdate(response); // Updates weather data
-      citySearch.style.display = "none"; // toggles the search message off
-    })
-    .catch((error) => {
-      citySearch.style.display = "none"; // toggles error message on if error
-      console.error("Error fetching data:", error);
-    });
+      updateSearchPlaceholder(cityInput);
+      updateCity(cityInput);
+
+      let citySearch = document.querySelector("#searching-city");
+      citySearch.style.display = "block"; // toggles search message on
+
+      axios
+        .get(apiUrl)
+        .then((response) => {
+          console.log(response.data); // Log the response to inspect the structure
+          weatherUpdate(response); // Updates weather data
+          citySearch.style.display = "none"; // toggles the search message off
+        })
+        .catch((error) => {
+          citySearch.style.display = "none"; // toggles error message on if error
+          console.error("Error fetching data:", error);
+        });
+    }
+  });
 }
 
-//convert search input to proper case
+// Convert search input to proper case
 function toProperCase(str) {
   return str
-    .split(" ") //
+    .split(" ") // Split by spaces
     .map((word) => {
       return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
     })
     .join(" ");
 }
 
-//update the placeholder text in the search bar
-
+// Update the placeholder text in the search bar
 function updateSearchPlaceholder(cityInput) {
   let citySearch = document.querySelector("#searching-city");
   citySearch.innerHTML = `Searching weather for ${cityInput}`;
 }
 
-//update the city based on input
+// Update the city based on input
 function updateCity(cityInput) {
   let searchQuery = document.querySelector("#city-result");
   searchQuery.innerHTML = `${cityInput}`;
 }
 
-//update the weather data
+// Update the weather data
 function weatherUpdate(response) {
+  console.log("API Response:", response.data); // Check the structure of the API response
+
   let weatherTemp = document.querySelector("#temperature");
   let weatherWindspeed = document.querySelector("#windspeed");
   let weatherHumidity = document.querySelector("#humidity");
   let weatherDescription = document.querySelector("#description");
   let weatherIcon = document.querySelector("#icon");
 
-  weatherTemp.innerHTML = `${Math.round(response.data.main.temp)}`;
-  weatherWindspeed.innerHTML = `${response.data.wind.speed}`;
-  weatherHumidity.innerHTML = `${response.data.humidity}`;
-  weatherDescription.innerHTML = `${response.data.weather[0].description}`;
-  weatherIcon.innerHTML = `<img src="https://openweathermap.org/img/wn/${response.data.weather[0].icon}.png" alt="weather icon">`;
+  if (response.data && response.data.data && response.data.data.values) {
+    let values = response.data.data.values;
+    console.log("Weather values:", values); // Check the structure of the weather values
+
+    // Check if weatherCode exists in the response
+    console.log("Weather code:", values.weatherCode);
+
+    // Update the HTML with the weather information
+    weatherTemp.innerHTML = `${Math.round(values.temperature)}°C`;
+    weatherWindspeed.innerHTML = `${values.windSpeed}`;
+    weatherHumidity.innerHTML = `${values.humidity}`;
+
+    //gets weather code description from weathercodes file
+    function getDescription(code) {
+      if (!code) {
+        console.warn("Weather code is missing or invalid.");
+        return "???";
+      }
+      return weatherCodes.weatherCode[code] || "No data available";
+    }
+
+    //updates weather description
+    weatherDescription.innerHTML = getDescription(values.weatherCode); // Adjust this if necessary
+
+    //updates weather icon
+    weatherIcon.innerHTML = `<img src="https://openweathermap.org/img/wn/${values.weatherIcon}.png" alt="weather icon">`;
+  } else {
+    console.error("Invalid or missing data in response", response);
+  }
 }
 
 //event listener
