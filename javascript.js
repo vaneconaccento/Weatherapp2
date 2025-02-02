@@ -1,7 +1,10 @@
 //****REQUIREMENTS****
 
-// function for click event that searches using open weatherAPI
-//     Note:(convert search input to proper case)
+// function for click event that searches using tomorrow.io weather API
+//     Note:
+//           * convert search input to proper case
+//           * API requires lat and long so need geocoord api to convert cities to geocoord
+//           * tomorrow.io api does not have icons so need to map weather codes to custom icons
 // function replaces the following id items when submit button is clicked:
 //           * searching-city
 //           * city-result
@@ -13,58 +16,80 @@
 //*******************************************************************/
 
 //api city update, weather, and search bar text when searching
-
 let apiKey = "xXKqIdDpT0sRO3yOXcGtg5tFS8C7NQZ7";
 let opencageKey = "0a28c32f1a4b40bbb4d8399ee9f42111";
+
+//function to search to trigger event
 function searchClick(event) {
   event.preventDefault();
 
   let cityInput = document.querySelector(".search-input").value;
   cityInput = toProperCase(cityInput);
 
-  // Get coordinates for the city (use cityInput here)
-  function getCoordinates(cityInput) {
-    const geocodeUrl = `https://api.opencagedata.com/geocode/v1/json?q=${cityInput}&key=${opencageKey}`;
+  // Get coordinates for the city
+  getCoordinates(cityInput).then((coordinates) => {
+    if (!coordinates || !validateCoordinates(coordinates)) {
+      // If coordinates are null, city is invalid
+      alert("Location shrouded in darkness. No weather information available.");
+      return;
+    }
 
-    return axios
-      .get(geocodeUrl)
+    // Get weather data using coordinates
+    const { lat, lng } = coordinates;
+    const apiUrl = `https://api.tomorrow.io/v4/weather/realtime?location=${lat},${lng}&apikey=${apiKey}&fields=temperature,weatherCode,humidity,precipitation,weatherIcon,windspeed`;
+
+    updateSearchPlaceholder(cityInput);
+    updateCity(cityInput);
+
+    let citySearch = document.querySelector("#searching-city");
+    citySearch.style.display = "block"; // toggles search message on
+
+    axios
+      .get(apiUrl)
       .then((response) => {
-        const data = response.data.results[0];
-        const lat = data.geometry.lat;
-        const lng = data.geometry.lng;
-        return { lat, lng };
+        console.log(response.data); // Log the response to inspect the API structure
+        weatherUpdate(response); // Updates weather data
+        citySearch.style.display = "none"; // toggles the search message off
       })
       .catch((error) => {
-        console.error("Error getting coordinates:", error);
-        return null;
+        citySearch.style.display = "none"; // toggles error message on if error
+        console.error("Error fetching data:", error);
       });
-  }
-
-  // Get coordinates and fetch weather data
-  getCoordinates(cityInput).then((coordinates) => {
-    if (coordinates) {
-      const { lat, lng } = coordinates;
-      const apiUrl = `https://api.tomorrow.io/v4/weather/realtime?location=${lat},${lng}&apikey=${apiKey}&fields=temperature,weatherCode,humidity,precipitation,weatherIcon,windspeed`;
-
-      updateSearchPlaceholder(cityInput);
-      updateCity(cityInput);
-
-      let citySearch = document.querySelector("#searching-city");
-      citySearch.style.display = "block"; // toggles search message on
-
-      axios
-        .get(apiUrl)
-        .then((response) => {
-          console.log(response.data); // Log the response to inspect the structure
-          weatherUpdate(response); // Updates weather data
-          citySearch.style.display = "none"; // toggles the search message off
-        })
-        .catch((error) => {
-          citySearch.style.display = "none"; // toggles error message on if error
-          console.error("Error fetching data:", error);
-        });
-    }
   });
+}
+
+// Coordinate validation
+function validateCoordinates(coordinates) {
+  const { lat, lng } = coordinates;
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+    console.warn("invalid coordinates:", coordinates);
+    return false;
+  }
+}
+
+// Get coordinates for the city
+function getCoordinates(cityInput) {
+  const geocodeUrl = `https://api.opencagedata.com/geocode/v1/json?q=${cityInput}&key=${opencageKey}`;
+
+  return axios
+    .get(geocodeUrl)
+    .then((response) => {
+      const data = response.data.results[0];
+
+      // Check for valid data
+      if (!data || data.length === 0) {
+        console.warn("No city results.");
+        return null; // Return null if no valid city data is found
+      }
+
+      const lat = data.geometry.lat;
+      const lng = data.geometry.lng;
+      return { lat, lng };
+    })
+    .catch((error) => {
+      console.error("Error with coordinates:", error);
+      return null;
+    });
 }
 
 // Convert search input to proper case
@@ -88,10 +113,9 @@ function updateCity(cityInput) {
   let searchQuery = document.querySelector("#city-result");
   searchQuery.innerHTML = `${cityInput}`;
 }
-
 // Update the weather data
 function weatherUpdate(response) {
-  console.log("API Response:", response.data); // Check the structure of the API response
+  console.log("API Response:", response.data); // logs API structure
 
   let weatherTemp = document.querySelector("#temperature");
   let weatherWindspeed = document.querySelector("#windspeed");
@@ -101,9 +125,9 @@ function weatherUpdate(response) {
 
   if (response.data && response.data.data && response.data.data.values) {
     let values = response.data.data.values;
-    console.log("Weather values:", values); // Check the structure of the weather values
+    console.log("Weather values:", values); //logs weather values
 
-    // Check if weatherCode exists in the response
+    // Checks if weatherCode exists in the response
     console.log("Weather code:", values.weatherCode);
 
     // Update the HTML with the weather information
@@ -115,16 +139,19 @@ function weatherUpdate(response) {
     function getDescription(code) {
       if (!code) {
         console.warn("Weather code is missing or invalid.");
-        return "???";
+        return "One does not simply know the forecast!";
       }
       return weatherCodes.weatherCode[code] || "No data available";
     }
 
     //updates weather description
-    weatherDescription.innerHTML = getDescription(values.weatherCode); // Adjust this if necessary
+    weatherDescription.innerHTML = getDescription(values.weatherCode);
+
+    //maps weather icon to weather code
+    const iconUrl = weatherIcons[values.weatherCode] || weatherIcons[0];
 
     //updates weather icon
-    weatherIcon.innerHTML = `<img src="https://openweathermap.org/img/wn/${values.weatherIcon}.png" alt="weather icon">`;
+    weatherIcon.innerHTML = `<img src="${iconUrl}" alt="weather icon" />`;
   } else {
     console.error("Invalid or missing data in response", response);
   }
