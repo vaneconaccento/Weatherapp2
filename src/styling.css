@@ -1,0 +1,217 @@
+/*fonts*/
+.uncial-antiqua-regular {
+  font-family: "Uncial Antiqua", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Hobbiton Brushhand";
+  src: url("src/fonts/HobbitonBrushhandhobbitonBrush-WygA.ttf")
+    format("truetype");
+}
+/********************************************************************************/
+/*list of classes
+app-container
+search-form
+search-input
+search-button
+city
+current-date
+temp
+weather
+footer
+cityTime-Table
+temp-table
+
+*/
+/*********************************************************************************/
+/*list of ids
+  * search-field
+  * searching-city
+  * city-result
+  * current-date
+  * weekday
+  * month, day, year
+  * hour, min
+  * temperature, windspeed, humidity, description, icon
+*/
+/************************************************************/
+
+/* General style for body */
+body {
+  height: 100%;
+  margin: 15px auto;
+  padding: 25px;
+}
+
+.app-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  height: 100%;
+  margin: 0;
+  border: 2px solid #000000;
+  border-radius: 48px;
+  width: 600px;
+  height: 600px;
+  padding: 25px;
+  background-color: rgb(20, 50, 43, 0.8);
+}
+
+.row1{
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+/*temperature text styling*/
+#temperature {
+  font-family: "Hobbiton Brushhand", serif;
+  font-size: 100px;
+  color: rgb(251, 200, 65, 0.6);
+}
+/*weather icon conditions styling*/
+.conditions {
+  display: flex;
+  justify-content: left;
+}
+
+#icon {
+  display: flex;
+  height: 80px;
+  width: 80px;
+}
+/*weather conditions styling*/
+
+.weather {
+  display: block;
+  color: #ffffff;
+  font-family: "Uncial Antiqua", serif;
+  font-size: 12px;
+  font-weight: lighter;
+  font-stretch: expanded;
+}
+#hour,
+#min,
+#windspeed,
+#humidity {
+  color: #ffffff;
+  font-family: "Uncial Antiqua", serif;
+  font-size: 12px;
+}
+
+/*location/date container style*/
+.locationTime-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+}
+
+.current-time, .city, .current-date {
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.current-time h4, .current-date h4 {
+  font-size: 20px;
+  color: #ffffff;
+}
+
+.city h1 {
+  font-size: 24px;
+  font-family: "Hobbiton Brushhand", serif;
+  font-weight: bold;
+}
+
+/* search form styling */
+.search-form {
+  margin: auto;
+  height: 100px;
+  width: 300px;
+  text-align: center;
+  font-family: "serif";
+}
+
+/*search input styling */
+.search-input {
+  font-family: "Uncial Antiqua", serif;
+  font-size: 14px;
+  color: #ffffff;
+  background-color: rgba(251, 223, 122, 0.5);
+  border: 5px solid rgb(251, 200, 65, 0.6);
+  box-shadow: 0 0 0 1px rgb(251, 200, 65, 0.6);
+  border-radius: 25px;
+  text-align: center;
+  padding: 2px;
+}
+
+#searching-city {
+  color: #ffffff;
+}
+
+/*search button styling*/
+.search-button {
+  background-color: rgba(251, 223, 122, 0.5);
+  border: 10px solid transparent;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 5px;
+  font-family: "Uncial Antiqua", serif;
+  color: #ffffff;
+  text-align: center;
+  transition: all 0.3s ease;
+  outline: none;
+  position: relative;
+  box-shadow: 0 0 0 10px rgb(251, 200, 65, 0.6);
+}
+
+/* Create the glowing gradient ring */
+.search-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(251, 200, 65, 1) rgba(220, 130, 79, 1),
+    rgba(251, 223, 122, 1),
+    rgba(220, 130, 79, 1)
+  );
+  z-index: -1;
+  padding: 5px;
+  box-shadow: 0 0 15px rgba(220, 130, 79, 1);
+}
+
+/* Hover effect for search button */
+.search-button:hover {
+  box-shadow: 0 0 15px 5px rgba(251, 223, 122, 0.8);
+  transform: scale(1.1);
+  transition: all 0.3s ease;
+/* text glow for search button */
+.search-button:hover {
+  color: rgba(251, 223, 122, 1);
+  text-shadow: 0 0 10px rgba(251, 223, 122, 1), 0 0 20px rgba(220, 130, 79, 0.8);
+}
+/* Footer styling */
+footer {
+  text-align: center;
+  font-size: 12px;
+  font-family: "Uncial Antiqua";
+  color: rgb(251, 200, 65);
+}
+footer.a {
+  color: #ffffff;
+}
+footer.a:hover {
+  color: rgba(251, 223, 122, 1);
+  text-shadow: 0 0 10px rgba(251, 223, 122, 1), 0 0 20px rgba(220, 130, 79, 0.8);
+}

@@ -15,21 +15,27 @@
 //           * temperature, windspeed, humidity, description,icon
 //*******************************************************************/
 
-//api city update, weather, and search bar text when searching
+// api city update, weather, and search bar text when searching
 let apiKey = "xXKqIdDpT0sRO3yOXcGtg5tFS8C7NQZ7";
 let opencageKey = "0a28c32f1a4b40bbb4d8399ee9f42111";
 
-//function to search to trigger event
+// Convert search input to proper case
+function toProperCase(str) {
+  return str
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+}
+
+// Function to search and trigger event
 function searchClick(event) {
   event.preventDefault();
-
   let cityInput = document.querySelector(".search-input").value;
   cityInput = toProperCase(cityInput);
 
   // Get coordinates for the city
   getCoordinates(cityInput).then((coordinates) => {
-    if (!coordinates || !validateCoordinates(coordinates)) {
-      // If coordinates are null, city is invalid
+    if (!coordinates) {
       alert("Location shrouded in darkness. No weather information available.");
       return;
     }
@@ -41,30 +47,19 @@ function searchClick(event) {
     updateSearchPlaceholder(cityInput);
     updateCity(cityInput);
 
+    // toggles search message on
     let citySearch = document.querySelector("#searching-city");
-    citySearch.style.display = "block"; // toggles search message on
+    citySearch.style.display = "block";
 
     axios
       .get(apiUrl)
       .then((response) => {
-        console.log(response.data); // Log the response to inspect the API structure
         weatherUpdate(response); // Updates weather data
-        citySearch.style.display = "none"; // toggles the search message off
       })
       .catch((error) => {
-        citySearch.style.display = "none"; // toggles error message on if error
-        console.error("Error fetching data:", error);
+        console.error("Error fetching weather data:", error);
       });
   });
-}
-
-// Coordinate validation
-function validateCoordinates(coordinates) {
-  const { lat, lng } = coordinates;
-  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-    console.warn("invalid coordinates:", coordinates);
-    return false;
-  }
 }
 
 // Get coordinates for the city
@@ -74,32 +69,23 @@ function getCoordinates(cityInput) {
   return axios
     .get(geocodeUrl)
     .then((response) => {
-      const data = response.data.results[0];
+      const data = response.data.results;
 
-      // Check for valid data
-      if (!data || data.length === 0) {
-        console.warn("No city results.");
-        return null; // Return null if no valid city data is found
+      // validate coordinates
+      if (data && data.length > 0) {
+        const city = data[0];
+        const lat = city.geometry.lat;
+        const lng = city.geometry.lng;
+        return { lat, lng };
+      } else {
+        console.warn("No results found.");
+        return null; // if no coordinates found
       }
-
-      const lat = data.geometry.lat;
-      const lng = data.geometry.lng;
-      return { lat, lng };
     })
     .catch((error) => {
-      console.error("Error with coordinates:", error);
+      console.error("Error getting coordinates:", error);
       return null;
     });
-}
-
-// Convert search input to proper case
-function toProperCase(str) {
-  return str
-    .split(" ") // Split by spaces
-    .map((word) => {
-      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-    })
-    .join(" ");
 }
 
 // Update the placeholder text in the search bar
@@ -113,6 +99,7 @@ function updateCity(cityInput) {
   let searchQuery = document.querySelector("#city-result");
   searchQuery.innerHTML = `${cityInput}`;
 }
+
 // Update the weather data
 function weatherUpdate(response) {
   console.log("API Response:", response.data); // logs API structure
@@ -125,7 +112,7 @@ function weatherUpdate(response) {
 
   if (response.data && response.data.data && response.data.data.values) {
     let values = response.data.data.values;
-    console.log("Weather values:", values); //logs weather values
+    console.log("Weather values:", values); // logs weather values
 
     // Checks if weatherCode exists in the response
     console.log("Weather code:", values.weatherCode);
@@ -135,7 +122,7 @@ function weatherUpdate(response) {
     weatherWindspeed.innerHTML = `${values.windSpeed}`;
     weatherHumidity.innerHTML = `${values.humidity}`;
 
-    //gets weather code description from weathercodes file
+    // Get weather code description
     function getDescription(code) {
       if (!code) {
         console.warn("Weather code is missing or invalid.");
@@ -144,26 +131,24 @@ function weatherUpdate(response) {
       return weatherCodes.weatherCode[code] || "No data available";
     }
 
-    //updates weather description
+    // Update weather description
     weatherDescription.innerHTML = getDescription(values.weatherCode);
 
-    //maps weather icon to weather code
+    // Maps weather icon to weather code
     const iconUrl = weatherIcons[values.weatherCode] || weatherIcons[0];
 
-    //updates weather icon
+    // Update weather icon
     weatherIcon.innerHTML = `<img src="${iconUrl}" alt="weather icon" />`;
   } else {
     console.error("Invalid or missing data in response", response);
   }
 }
 
-//event listener
-
+// Event listener
 let form = document.querySelector("#search-field");
 form.addEventListener("submit", searchClick);
 
-//date update and time
-
+// Date and time update
 function updateDatTime() {
   let now = new Date();
 
@@ -200,23 +185,12 @@ function updateDatTime() {
   let hour = now.getHours();
   let minutes = now.getMinutes();
 
-  let updateWeekday = document.querySelector("#weekday");
-  updateWeekday.innerHTML = `${day}`;
-
-  let updateMonth = document.querySelector("#month");
-  updateMonth.innerHTML = `${month}`;
-
-  let updateDay = document.querySelector("#day");
-  updateDay.innerHTML = `${date}`;
-
-  let updateYear = document.querySelector("#year");
-  updateYear.innerHTML = `${year}`;
-
-  let updateHour = document.querySelector("#hour");
-  updateHour.innerHTML = `${hour}`;
-
-  let updateMin = document.querySelector("#min");
-  updateMin.innerHTML = `${minutes}`;
+  document.querySelector("#weekday").innerHTML = day;
+  document.querySelector("#month").innerHTML = month;
+  document.querySelector("#day").innerHTML = date;
+  document.querySelector("#year").innerHTML = year;
+  document.querySelector("#hour").innerHTML = hour;
+  document.querySelector("#min").innerHTML = minutes;
 }
 
 updateDatTime();
